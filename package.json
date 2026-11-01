@@ -1,0 +1,83 @@
+{
+  "name": "hyrule-offline-map",
+  "productName": "Hyrule Atlas",
+  "version": "2.1.0",
+  "description": "Hyrule Atlas - a fully offline interactive Breath of the Wild map and completion tracker, by KyDa.",
+  "main": "main.js",
+  "private": true,
+  "author": "KyDa",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "tiles": "node tools/make-tiles.js",
+    "preview": "node tools/make-preview.js",
+    "register": "node tools/register-markers.js",
+    "icon": "node tools/make-icon.js",
+    "format-data": "node tools/format-data.js",
+    "minify": "node tools/minify.js",
+    "pack": "node tools/minify.js && electron-builder --dir",
+    "dist": "node tools/minify.js && electron-builder --win nsis",
+    "dist:portable": "node tools/minify.js && electron-builder --win zip",
+    "dist:all": "node tools/minify.js && electron-builder --win nsis zip"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "electron": "^41.0.0",
+    "electron-builder": "^26.0.0",
+    "sharp": "^0.34.0"
+  },
+  "build": {
+    "appId": "local.hyrule.atlas",
+    "productName": "Hyrule Atlas",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      {
+        "from": "release",
+        "to": ".",
+        "filter": [
+          "*.js"
+        ]
+      },
+      "index.html",
+      "styles.css",
+      "map_data.json",
+      "package.json",
+      "pin-*.png",
+      "glyphs/**/*",
+      "tiles/**/*",
+      "sprites/**/*",
+      "icons/**/*",
+      "screenshots/**/*",
+      "media/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "Hyrule-Atlas-Portable-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "license": "build/license.txt",
+      "artifactName": "Hyrule-Atlas-Setup-${version}.${ext}"
+    },
+    "copyright": "Copyright (c) 2026 KyDa"
+  }
+}

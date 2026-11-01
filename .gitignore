@@ -1,0 +1,20 @@
+# dependencies and build output
+node_modules/
+dist/
+release/
+
+# big map files (host these on the release page instead)
+hyrule_map.png
+hyrule_map_preview.jpg
+tiles/
+
+# generated archives
+*.zip
+*.asar
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+Things to fix.txt
+vips-properties.xml

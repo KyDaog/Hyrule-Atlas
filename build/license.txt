@@ -1,0 +1,27 @@
+HYRULE ATLAS - Offline Map and Completion Tracker
+
+Copyright (c) 2026 KyDa. All rights reserved.
+
+Created by KyDa, in coordination with Claude (an AI assistant made by Anthropic).
+YouTube: https://www.youtube.com/kydaog
+Discord: https://discord.gg/gEWnBUtMrx
+
+
+TERMS OF USE
+
+1. Free of charge. You may install and use Hyrule Atlas for personal,
+   non-commercial purposes at no cost.
+
+2. Sharing. You may share unmodified copies of the installer with others free
+   of charge, as long as this notice stays with it. You may not sell Hyrule
+   Atlas or charge for access to it.
+
+3. No warranty. Hyrule Atlas is provided "as is", without warranty of any
+   kind. KyDa is not liable for any damage or loss resulting from its use.
+
+4. Not affiliated with Nintendo. Hyrule Atlas is an unofficial fan project.
+   The Legend of Zelda and Breath of the Wild, along with their names,
+   characters, maps and artwork, are the property of Nintendo. Marker data is
+   based on community map projects.
+
+By clicking "I Agree" you accept these terms.

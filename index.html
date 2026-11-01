@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hyrule Atlas</title>
+  <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+
+    <aside id="sidebar" class="sidebar" aria-label="Map controls">
+      <header class="sidebar-header">
+        <h1>Hyrule Atlas</h1>
+        <p>Works fully offline. Progress is saved on this computer.</p>
+      </header>
+
+      <div class="sidebar-scroll">
+
+        <section class="block" aria-labelledby="search-title">
+          <h2 id="search-title">Find a marker</h2>
+          <div class="search">
+            <input id="search-input" type="text" autocomplete="off" spellcheck="false"
+                   placeholder="Search by name, place or description">
+            <button id="search-clear" class="search-clear" type="button" aria-label="Clear search" hidden>&times;</button>
+          </div>
+          <p id="result-count" class="hint" aria-live="polite"></p>
+        </section>
+
+        <section class="block" aria-labelledby="progress-title">
+          <h2 id="progress-title">Progress</h2>
+          <div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-meter">
+            <div id="progress-fill" class="meter-fill"></div>
+          </div>
+          <p id="progress-text" class="hint"></p>
+        </section>
+
+        <section class="block" aria-labelledby="layers-title">
+          <div class="block-head">
+            <h2 id="layers-title">Layers</h2>
+            <div class="mini-actions">
+              <button id="layers-core" class="link-btn" type="button" title="Shrines, Korok Seeds, Divine Beasts and Landmarks: what the in-game 100% counter tracks">100% only</button>
+              <button id="layers-all" class="link-btn" type="button">Show all</button>
+              <button id="layers-none" class="link-btn" type="button">Hide all</button>
+            </div>
+          </div>
+          <ul id="category-list" class="cat-list"></ul>
+        </section>
+
+        <section class="block" aria-labelledby="options-title">
+          <h2 id="options-title">Display</h2>
+          <label class="switch-row">
+            <span>Hide completed markers</span>
+            <input id="hide-completed" class="switch" type="checkbox">
+          </label>
+          <label class="switch-row switch-row-gap">
+            <span>Include DLC &amp; Master Mode</span>
+            <input id="show-dlc" class="switch" type="checkbox">
+          </label>
+          <button id="calibrate-btn" class="btn btn-quiet" type="button">Align markers to map</button>
+          <p id="calibrate-hint" class="hint">Use this if the pins do not sit on the right spots.</p>
+        </section>
+
+      </div>
+
+      <footer class="sidebar-footer">
+        <button id="about-btn" class="btn btn-cta" type="button">CLICK ME!</button>
+        <button id="reset-progress" class="btn btn-danger" type="button">Reset progress</button>
+        <p id="data-note" class="hint"></p>
+        <p id="app-version" class="hint"></p>
+        <p class="hint keys">Ctrl+F search, Ctrl+B panel, F11 fullscreen</p>
+      </footer>
+    </aside>
+
+    <main class="viewport">
+      <button id="sidebar-toggle" class="panel-toggle" type="button"
+              aria-controls="sidebar" aria-expanded="true" aria-label="Hide side panel" title="Toggle side panel (Ctrl+B)">
+        <span class="panel-toggle-bars" aria-hidden="true"></span>
+      </button>
+
+      <div id="map" class="map" tabindex="-1"></div>
+
+      <div id="cursor-readout" class="readout" aria-hidden="true"></div>
+
+      <div id="calibration" class="calib" hidden>
+        <h2>Align markers to the map</h2>
+        <p>Arrow keys move every marker, + and - scale them. Hold Shift for big steps, Alt for tiny ones.
+           Line up a tower or shrine near the middle of the map first, then fix one near an edge with + and -, and repeat once.</p>
+        <p id="calib-values" class="calib-values"></p>
+        <div class="calib-actions">
+          <button id="calib-save" class="btn" type="button">Save alignment</button>
+          <button id="calib-reset" class="btn" type="button">Reset</button>
+          <button id="calib-cancel" class="btn" type="button">Cancel</button>
+        </div>
+      </div>
+
+      <div id="overlay" class="overlay" role="status">
+        <div class="overlay-card">
+          <div class="spinner" id="overlay-spinner"></div>
+          <h2 id="overlay-title">Opening the map</h2>
+          <p id="overlay-message">Loading local map data.</p>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <div id="about-dialog" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div class="modal-card">
+      <h2 id="about-title">A note from KyDa</h2>
+      <p>Hi my name is KyDa, I worked in coordination with Claude to provide this program... I know I know, AI Slop, but there are no other offline tools like this in existence, and it's free!!!</p>
+      <p>Check out my youtube at
+        <a href="https://www.youtube.com/kydaog" data-external>https://www.youtube.com/kydaog</a>
+        and join our discord to follow for updates, other games, fun, and so much more at
+        <a href="https://discord.gg/gEWnBUtMrx" data-external>https://discord.gg/gEWnBUtMrx</a></p>
+      <p>Thank you for the support and enjoy the tracker!</p>
+      <button id="about-close" class="btn" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Screenshot viewer">
+    <button id="lightbox-close" class="lightbox-close" type="button" aria-label="Close screenshot">&times;</button>
+    <button id="lightbox-prev" class="lightbox-nav lightbox-prev" type="button" aria-label="Previous screenshot">&lsaquo;</button>
+    <div id="lightbox-stage" class="lightbox-stage"><img id="lightbox-img" alt=""></div>
+    <button id="lightbox-next" class="lightbox-nav lightbox-next" type="button" aria-label="Next screenshot">&rsaquo;</button>
+    <p id="lightbox-caption" class="lightbox-caption"></p>
+  </div>
+
+  <script src="node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="categories.js"></script>
+  <script src="media.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
