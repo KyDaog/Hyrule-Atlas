@@ -33,8 +33,28 @@ function Run([string]$exe, [string[]]$arguments) {
 }
 
 function Quiet([string]$exe, [string[]]$arguments) {
-  & $exe @arguments 2>$null | Out-Null
-  return ($LASTEXITCODE -eq 0)
+  # Windows PowerShell treats any text a program prints as an error when errors are set to Stop,
+  # so switch that off for this one quiet check and just look at the exit code.
+  $saved = $ErrorActionPreference
+  $ErrorActionPreference = 'Continue'
+  try {
+    & $exe @arguments 2>&1 | Out-Null
+    return ($LASTEXITCODE -eq 0)
+  } finally {
+    $ErrorActionPreference = $saved
+  }
+}
+
+function Capture([string]$exe, [string[]]$arguments) {
+  $saved = $ErrorActionPreference
+  $ErrorActionPreference = 'Continue'
+  try {
+    $out = & $exe @arguments 2>$null
+    if ($LASTEXITCODE -ne 0) { return '' }
+    return ($out | Out-String).Trim()
+  } finally {
+    $ErrorActionPreference = $saved
+  }
 }
 
 Write-Host ''
@@ -69,12 +89,12 @@ if (-not (Test-Path '.git')) {
 }
 
 # Use GitHub's private "noreply" address so your real email is never published.
-$name = (& git config user.name 2>$null)
-$mail = (& git config user.email 2>$null)
+$name = Capture 'git' @('config', 'user.name')
+$mail = Capture 'git' @('config', 'user.email')
 if (-not $name) { Run 'git' @('config', 'user.name', 'KyDa') }
 if (-not $mail) {
-  $id = (& gh api user --jq '.id').Trim()
-  $login = (& gh api user --jq '.login').Trim()
+  $id = Capture 'gh' @('api', 'user', '--jq', '.id')
+  $login = Capture 'gh' @('api', 'user', '--jq', '.login')
   Run 'git' @('config', 'user.email', "$id+$login@users.noreply.github.com")
 }
 
